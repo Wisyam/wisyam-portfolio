@@ -5,6 +5,8 @@
  */
 
 import { Html } from '@react-three/drei'
+import type { RefObject } from 'react'
+import type { Group, Object3D } from 'three'
 import type { PortfolioSection, SectionVariant } from '../../content/sections'
 
 /**
@@ -21,12 +23,21 @@ const LABEL_HEIGHTS: Record<SectionVariant, number> = {
   contact: 5.2,
 }
 
-function SectionLabel({ label, height }: { label: string; height: number }) {
+function SectionLabel({
+  label,
+  height,
+  occludeRefs,
+}: {
+  label: string
+  height: number
+  occludeRefs?: RefObject<Object3D>[]
+}) {
   return (
     <Html
       position={[0, height, 0]}
       center
       distanceFactor={24}
+      occlude={occludeRefs}
       className="pointer-events-none select-none"
     >
       <div className="whitespace-nowrap rounded-full border border-white/20 bg-slate-900/80 px-2 py-0.5 text-xs font-medium text-white shadow-lg">
@@ -209,11 +220,19 @@ function BuildingMeshes({ variant }: { variant: SectionVariant }) {
   }
 }
 
-export function SectionBuilding({ section }: { section: PortfolioSection }) {
+interface SectionBuildingProps {
+  section: PortfolioSection
+  /** Group ref this building attaches to (collected by the scene for label occlusion). */
+  occludeRef?: RefObject<Group | null>
+  /** All building group refs; every label raycasts against all buildings. */
+  occludeRefs?: RefObject<Object3D>[]
+}
+
+export function SectionBuilding({ section, occludeRef, occludeRefs }: SectionBuildingProps) {
   return (
-    <group position={section.position}>
+    <group ref={occludeRef} position={section.position}>
       <BuildingMeshes variant={section.id} />
-      <SectionLabel label={section.label} height={LABEL_HEIGHTS[section.id]} />
+      <SectionLabel label={section.label} height={LABEL_HEIGHTS[section.id]} occludeRefs={occludeRefs} />
     </group>
   )
 }
