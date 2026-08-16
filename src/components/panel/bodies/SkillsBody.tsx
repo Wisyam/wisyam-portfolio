@@ -1,4 +1,4 @@
-import { SKILLS } from '../../../content/skills'
+import { SKILLS } from '../../../content'
 
 /** Skills panel: grouped skill chips. */
 export function SkillsBody() {

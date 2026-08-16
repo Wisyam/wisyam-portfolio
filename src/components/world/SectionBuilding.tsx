@@ -13,7 +13,7 @@ import { Html } from '@react-three/drei'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import * as THREE from 'three'
 import type { Group, Object3D } from 'three'
-import type { PortfolioSection, SectionVariant } from '../../content/sections'
+import type { PortfolioSection, SectionVariant } from '../../content'
 
 const HOVER_EMISSIVE = '#fbbf24'
 const HOVER_EMISSIVE_INTENSITY = 0.5

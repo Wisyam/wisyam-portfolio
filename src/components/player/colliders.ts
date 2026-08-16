@@ -5,8 +5,8 @@
  * drift from what is actually rendered.
  */
 
-import { SECTIONS, type SectionVariant } from '../../content/sections'
-import { ROCKS, TREES } from '../../content/world-props'
+import { SECTIONS, type SectionVariant } from '../../content'
+import { ROCKS, TREES } from '../../content'
 
 /** Capsule radius of the player character. */
 export const PLAYER_RADIUS = 0.5

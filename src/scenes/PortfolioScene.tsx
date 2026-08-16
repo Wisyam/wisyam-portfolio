@@ -17,7 +17,7 @@ import { Player } from '../components/player/Player'
 import { Ground } from '../components/world/Ground'
 import { Props } from '../components/world/Props'
 import { SectionBuilding } from '../components/world/SectionBuilding'
-import { SECTIONS, type SectionVariant } from '../content/sections'
+import { SECTIONS, type SectionVariant } from '../content'
 
 const SKY_COLOR = '#a7d8f0'
 /** Extra distance beyond the highlight ring radius that counts as "in range". */

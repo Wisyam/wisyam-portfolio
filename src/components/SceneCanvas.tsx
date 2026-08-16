@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { PortfolioScene } from '../scenes/PortfolioScene'
-import type { SectionVariant } from '../content/sections'
+import type { SectionVariant } from '../content'
 
 interface SceneCanvasProps {
   activeSection: SectionVariant | null

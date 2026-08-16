@@ -6,7 +6,7 @@
  */
 
 import { Instance, Instances } from '@react-three/drei'
-import { FENCE_HALF, ROCKS, TREES } from '../../content/world-props'
+import { FENCE_HALF, ROCKS, TREES } from '../../content'
 
 const TREE_GREENS = ['#2e7d32', '#388e3c', '#43a047', '#2f9e44']
 const TREE_TRUNK_COLOR = '#6d4c41'

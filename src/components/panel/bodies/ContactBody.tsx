@@ -1,4 +1,4 @@
-import { CONTACT_LINKS } from '../../../content/contact'
+import { CONTACT_LINKS } from '../../../content'
 
 /** Contact panel: clickable links (external sites + tel). */
 export function ContactBody() {

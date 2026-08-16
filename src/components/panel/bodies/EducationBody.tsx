@@ -1,4 +1,4 @@
-import { CERTIFICATIONS, EDUCATION } from '../../../content/education'
+import { CERTIFICATIONS, EDUCATION } from '../../../content'
 
 /** Education panel: studies + certifications. */
 export function EducationBody() {
