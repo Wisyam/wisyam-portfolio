@@ -3,10 +3,12 @@
  * buildings, plus the player character and its follow camera.
  *
  * Also owns the interaction glue: each frame it computes which building is
- * within E-key range of the player (visible as the "Press E" prompt), and a
- * keydown listener opens that section's panel.
+ * within E-key range of the player (visible as the "Press E" prompt), a
+ * keydown listener opens that section's panel, and the tap-to-move target
+ * (ground taps on touch devices) is held here and handed to the player.
  */
 
+import { Sparkles } from '@react-three/drei'
 import { createRef, useEffect, useRef, useState, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -28,6 +30,8 @@ interface PortfolioSceneProps {
 
 export function PortfolioScene({ activeSection, onOpenSection }: PortfolioSceneProps) {
   const playerRef = useRef<THREE.Group | null>(null)
+  /** Tap-to-move destination (world x/z); shared with the player via useFrame. */
+  const moveTarget = useRef<THREE.Vector3 | null>(null)
 
   const [inRangeSection, setInRangeSection] = useState<SectionVariant | null>(null)
   const inRangeRef = useRef<SectionVariant | null>(null)
@@ -93,7 +97,12 @@ export function PortfolioScene({ activeSection, onOpenSection }: PortfolioSceneP
         shadow-bias={-0.0002}
       />
 
-      <Ground />
+      {/* Subtle ambient detail: slow drifting dust/fireflies over the whole world. */}
+      <Sparkles count={90} scale={[34, 5, 34]} position={[0, 3, 0]} size={2.5} speed={0.35} opacity={0.35} color="#fff8d6" />
+
+      <Ground onTap={(x, z) => {
+        moveTarget.current = new THREE.Vector3(x, 0, z)
+      }} />
       <Props />
 
       {SECTIONS.map((section, index) => (
@@ -107,7 +116,7 @@ export function PortfolioScene({ activeSection, onOpenSection }: PortfolioSceneP
         />
       ))}
 
-      <Player playerRef={playerRef} disabled={activeSection !== null} />
+      <Player playerRef={playerRef} disabled={activeSection !== null} moveTargetRef={moveTarget} />
       <CameraRig playerRef={playerRef} />
     </>
   )

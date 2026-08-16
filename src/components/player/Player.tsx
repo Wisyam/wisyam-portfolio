@@ -1,7 +1,8 @@
 /**
  * Player character: low-poly capsule with a face marker, keyboard movement
- * (WASD + arrows), collision against buildings/props/world boundary, and
- * facing rotation that follows the movement direction.
+ * (WASD + arrows) and tap-to-move (touch devices: tap the ground to walk
+ * there), collision against buildings/props/world boundary, and facing
+ * rotation that follows the movement direction.
  *
  * The character itself is a plain <group> whose ref is shared with the
  * CameraRig via PortfolioScene.
@@ -25,6 +26,8 @@ const MOVE_SPEED = 6.5
 const ROTATION_DAMP = 14
 const MAX_DELTA = 0.05
 const BODY_Y = 0.9
+/** Stop distance (world units) at which tap-to-move considers the target reached. */
+const TARGET_EPSILON = 0.2
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -82,13 +85,39 @@ function resolveCircles(position: THREE.Vector3, circles: Circle[]) {
   }
 }
 
+/**
+ * Advance the position along a normalized direction for one frame, clamped to
+ * the world and pushed out of every collider. Shared by keyboard movement and
+ * tap-to-move so the two input modes can never drift apart.
+ */
+function stepPosition(position: THREE.Vector3, dirX: number, dirZ: number, delta: number) {
+  position.x += dirX * MOVE_SPEED * delta
+  position.z += dirZ * MOVE_SPEED * delta
+  position.x = clamp(position.x, -WORLD_LIMIT, WORLD_LIMIT)
+  position.z = clamp(position.z, -WORLD_LIMIT, WORLD_LIMIT)
+  resolveAabbs(position, buildingColliders)
+  resolveCircles(position, treeColliders)
+  resolveCircles(position, rockColliders)
+}
+
+/** Damp-rotate the facing angle toward a target (front of the capsule is +z). */
+function dampFacing(facing: { current: number }, target: number, delta: number) {
+  let diff = target - facing.current
+  while (diff > Math.PI) diff -= Math.PI * 2
+  while (diff < -Math.PI) diff += Math.PI * 2
+  facing.current += diff * Math.min(1, delta * ROTATION_DAMP)
+}
+
 export function Player({
   playerRef,
   disabled = false,
+  moveTargetRef,
 }: {
   playerRef: RefObject<THREE.Group | null>
   /** While true (section panel open) the character does not move or rotate. */
   disabled?: boolean
+  /** Tap-to-move target in world x/z; null = no target. Cleared on keyboard input. */
+  moveTargetRef?: RefObject<THREE.Vector3 | null>
 }) {
   const getInput = useKeyboardInput()
   const position = useRef(new THREE.Vector3(0, 0, 0))
@@ -102,21 +131,25 @@ export function Player({
       const moving = inputX !== 0 || inputZ !== 0
 
       if (moving) {
-        position.current.x += inputX * MOVE_SPEED * delta
-        position.current.z += inputZ * MOVE_SPEED * delta
-        position.current.x = clamp(position.current.x, -WORLD_LIMIT, WORLD_LIMIT)
-        position.current.z = clamp(position.current.z, -WORLD_LIMIT, WORLD_LIMIT)
-
-        resolveAabbs(position.current, buildingColliders)
-        resolveCircles(position.current, treeColliders)
-        resolveCircles(position.current, rockColliders)
-
-        // Face the movement direction (front of the capsule is +z local).
-        const target = Math.atan2(inputX, inputZ)
-        let diff = target - facing.current
-        while (diff > Math.PI) diff -= Math.PI * 2
-        while (diff < -Math.PI) diff += Math.PI * 2
-        facing.current += diff * Math.min(1, delta * ROTATION_DAMP)
+        // Keyboard takes precedence over a pending tap-to-move target.
+        if (moveTargetRef) moveTargetRef.current = null
+        stepPosition(position.current, inputX, inputZ, delta)
+        dampFacing(facing, Math.atan2(inputX, inputZ), delta)
+      } else {
+        const target = moveTargetRef?.current
+        if (target) {
+          const dx = target.x - position.current.x
+          const dz = target.z - position.current.z
+          const dist = Math.hypot(dx, dz)
+          if (dist < TARGET_EPSILON) {
+            moveTargetRef.current = null
+          } else {
+            const dirX = dx / dist
+            const dirZ = dz / dist
+            stepPosition(position.current, dirX, dirZ, delta)
+            dampFacing(facing, Math.atan2(dirX, dirZ), delta)
+          }
+        }
       }
     }
 
