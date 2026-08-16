@@ -316,14 +316,15 @@ export function SectionBuilding({
     >
       <BuildingMeshes variant={section.id} />
 
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.035, 0]}
-        visible={highlighted}
-      >
-        <ringGeometry args={[section.ringRadius - RING_WIDTH, section.ringRadius, 48]} />
-        <meshBasicMaterial color={RING_COLOR} transparent opacity={0.85} side={THREE.DoubleSide} />
-      </mesh>
+      {/* Mounted only while highlighted: three.js raycasts invisible meshes,
+          so a hidden ring would swallow clicks on the ground next to the
+          building and open the panel ("phantom click"). */}
+      {highlighted && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
+          <ringGeometry args={[section.ringRadius - RING_WIDTH, section.ringRadius, 48]} />
+          <meshBasicMaterial color={RING_COLOR} transparent opacity={0.85} side={THREE.DoubleSide} />
+        </mesh>
+      )}
 
       <SectionLabel label={section.label} height={LABEL_HEIGHTS[section.id]} occludeRefs={occludeRefs} />
 
