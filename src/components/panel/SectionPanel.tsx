@@ -1,5 +1,28 @@
 import { useEffect } from 'react'
-import type { PortfolioSection } from '../../content/sections'
+import type { PortfolioSection, SectionVariant } from '../../content/sections'
+import { AboutBody } from './bodies/AboutBody'
+import { ContactBody } from './bodies/ContactBody'
+import { EducationBody } from './bodies/EducationBody'
+import { ExperienceBody } from './bodies/ExperienceBody'
+import { ProjectsBody } from './bodies/ProjectsBody'
+import { SkillsBody } from './bodies/SkillsBody'
+
+function SectionContent({ id }: { id: SectionVariant }) {
+  switch (id) {
+    case 'about':
+      return <AboutBody />
+    case 'skills':
+      return <SkillsBody />
+    case 'projects':
+      return <ProjectsBody />
+    case 'experience':
+      return <ExperienceBody />
+    case 'education':
+      return <EducationBody />
+    case 'contact':
+      return <ContactBody />
+  }
+}
 
 interface SectionPanelProps {
   /** Section whose panel is open; null hides the overlay. */
@@ -48,22 +71,13 @@ export function SectionPanel({ section, onClose }: SectionPanelProps) {
           </button>
         </header>
 
-        <div className="px-6 py-5">
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
           <p className="font-mono text-xs text-slate-500">~/sections/{section.id}.md</p>
-          <p className="mt-3 text-sm leading-relaxed text-slate-300">
-            Panel <span className="font-semibold text-cyan-300">{section.label}</span> is live —
-            full content ships in the content milestone.
-          </p>
-
-          {/* Placeholder layout skeleton, replaced by real section content later */}
-          <div className="mt-5 space-y-2" aria-hidden="true">
-            <div className="h-3 w-3/4 animate-pulse rounded bg-slate-700" />
-            <div className="h-3 w-full animate-pulse rounded bg-slate-700/70" />
-            <div className="h-3 w-5/6 animate-pulse rounded bg-slate-700/70" />
-            <div className="h-3 w-2/3 animate-pulse rounded bg-slate-700/50" />
+          <div className="mt-3">
+            <SectionContent id={section.id} />
           </div>
 
-          <p className="mt-5 text-xs text-slate-500">
+          <p className="mt-5 border-t border-slate-700/70 pt-4 text-xs text-slate-500">
             ESC or click outside to close — player movement is paused while this panel is open.
           </p>
         </div>

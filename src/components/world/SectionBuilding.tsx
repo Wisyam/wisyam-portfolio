@@ -51,6 +51,10 @@ function SectionLabel({
       center
       distanceFactor={24}
       occlude={occludeRefs}
+      // Labels are DOM siblings of the panel overlay; drei defaults them to a
+      // z-index of ~16M which would cover the open panel. Cap them well below
+      // the panel's z-50 so the UI always renders on top.
+      zIndexRange={[10, 0]}
       // wrapperClass hits the outer container: without it the label div would
       // swallow clicks/pointer events and block raycast interaction below it.
       wrapperClass="pointer-events-none"
@@ -333,6 +337,7 @@ export function SectionBuilding({
           position={[0, LABEL_HEIGHTS[section.id] - PROMPT_LABEL_OFFSET, 0]}
           center
           distanceFactor={24}
+          zIndexRange={[10, 0]}
           wrapperClass="pointer-events-none"
           className="pointer-events-none select-none"
         >
