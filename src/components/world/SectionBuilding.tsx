@@ -2,12 +2,25 @@
  * One distinct low-poly building per portfolio section + its floating label.
  * Buildings stay as simple primitives (boxes/cones/cylinders) so a later task
  * can add player collision without touching the meshes.
+ *
+ * Every building is interactable: hovering highlights it (amber emissive +
+ * ground ring), clicking it from any distance opens its section panel (R3F
+ * raycast events bubble up from the child meshes), and a "Press E" pill is
+ * shown while the player stands in range.
  */
 
 import { Html } from '@react-three/drei'
-import type { RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
+import * as THREE from 'three'
 import type { Group, Object3D } from 'three'
 import type { PortfolioSection, SectionVariant } from '../../content/sections'
+
+const HOVER_EMISSIVE = '#fbbf24'
+const HOVER_EMISSIVE_INTENSITY = 0.5
+const RING_COLOR = '#fbbf24'
+const RING_WIDTH = 0.3
+/** Below the section label so the prompt reads as a second line. */
+const PROMPT_LABEL_OFFSET = 0.85
 
 /**
  * Vertical offset of the floating label above each building's highest point.
@@ -38,6 +51,9 @@ function SectionLabel({
       center
       distanceFactor={24}
       occlude={occludeRefs}
+      // wrapperClass hits the outer container: without it the label div would
+      // swallow clicks/pointer events and block raycast interaction below it.
+      wrapperClass="pointer-events-none"
       className="pointer-events-none select-none"
     >
       <div className="whitespace-nowrap rounded-full border border-white/20 bg-slate-900/80 px-2 py-0.5 text-xs font-medium text-white shadow-lg">
@@ -226,13 +242,104 @@ interface SectionBuildingProps {
   occludeRef?: RefObject<Group | null>
   /** All building group refs; every label raycasts against all buildings. */
   occludeRefs?: RefObject<Object3D>[]
+  /** Called when the building is clicked (raycast, any distance). */
+  onOpen?: () => void
+  /** Show the "Press E" prompt pill (player is in range, no panel open). */
+  showPrompt?: boolean
 }
 
-export function SectionBuilding({ section, occludeRef, occludeRefs }: SectionBuildingProps) {
+export function SectionBuilding({
+  section,
+  occludeRef,
+  occludeRefs,
+  onOpen,
+  showPrompt = false,
+}: SectionBuildingProps) {
+  const [hovered, setHovered] = useState(false)
+  const groupRef = useRef<THREE.Group | null>(null)
+  const savedEmissive = useRef<
+    Array<{ material: THREE.MeshStandardMaterial; color: THREE.Color; intensity: number }>
+  >([])
+
+  useEffect(() => {
+    const group = groupRef.current
+    if (!group) return
+
+    const materials: THREE.MeshStandardMaterial[] = []
+    group.traverse((object) => {
+      const mesh = object as THREE.Mesh
+      if (mesh.isMesh && mesh.material instanceof THREE.MeshStandardMaterial) {
+        materials.push(mesh.material)
+      }
+    })
+
+    if (hovered) {
+      savedEmissive.current = materials.map((material) => ({
+        material,
+        color: material.emissive.clone(),
+        intensity: material.emissiveIntensity,
+      }))
+      for (const saved of savedEmissive.current) {
+        saved.material.emissive.set(HOVER_EMISSIVE)
+        saved.material.emissiveIntensity = HOVER_EMISSIVE_INTENSITY
+      }
+    } else {
+      for (const saved of savedEmissive.current) {
+        saved.material.emissive.copy(saved.color)
+        saved.material.emissiveIntensity = saved.intensity
+      }
+      savedEmissive.current = []
+    }
+  }, [hovered])
+
+  const highlighted = hovered || showPrompt
+
   return (
-    <group ref={occludeRef} position={section.position}>
+    <group
+      position={section.position}
+      ref={(node) => {
+        groupRef.current = node
+        if (occludeRef) occludeRef.current = node
+      }}
+      onPointerOver={() => {
+        setHovered(true)
+        document.body.style.cursor = 'pointer'
+      }}
+      onPointerOut={() => {
+        setHovered(false)
+        document.body.style.cursor = 'auto'
+      }}
+      onClick={(event) => {
+        event.stopPropagation()
+        onOpen?.()
+      }}
+    >
       <BuildingMeshes variant={section.id} />
+
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.035, 0]}
+        visible={highlighted}
+      >
+        <ringGeometry args={[section.ringRadius - RING_WIDTH, section.ringRadius, 48]} />
+        <meshBasicMaterial color={RING_COLOR} transparent opacity={0.85} side={THREE.DoubleSide} />
+      </mesh>
+
       <SectionLabel label={section.label} height={LABEL_HEIGHTS[section.id]} occludeRefs={occludeRefs} />
+
+      {showPrompt && (
+        <Html
+          position={[0, LABEL_HEIGHTS[section.id] - PROMPT_LABEL_OFFSET, 0]}
+          center
+          distanceFactor={24}
+          wrapperClass="pointer-events-none"
+          className="pointer-events-none select-none"
+        >
+          <div className="animate-pulse whitespace-nowrap rounded-full border border-emerald-300/40 bg-emerald-500/90 px-3 py-1 text-xs font-bold text-white shadow-lg">
+            Press E
+          </div>
+        </Html>
+      )}
     </group>
   )
 }

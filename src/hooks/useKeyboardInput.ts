@@ -1,9 +1,9 @@
 /**
  * Keyboard state for the player: WASD + arrow keys.
  *
- * Returns a stable getter function instead of React state, so holding or
- * releasing a key never triggers a re-render — the game loop reads the
- * current input inside useFrame.
+ * Returns a plain getter instead of React state, so holding or releasing a
+ * key never triggers a re-render — the game loop reads the current input
+ * inside useFrame.
  */
 
 import { useEffect, useRef } from 'react'
@@ -48,11 +48,21 @@ export function useKeyboardInput(): () => PlayerInput {
     const onKeyUp = (event: KeyboardEvent) => {
       held.current.delete(event.code)
     }
+    // If the window loses focus while a key is held, the keyup never arrives
+    // and the character would keep moving forever — drop all held keys.
+    const clearHeld = () => held.current.clear()
+    const onVisibilityChange = () => {
+      if (document.hidden) clearHeld()
+    }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', clearHeld)
+    document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('blur', clearHeld)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [])
 
