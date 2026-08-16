@@ -7,6 +7,56 @@ body,
   margin: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'VT323', 'Courier New', monospace;
+  background-color: #8ec9e8;
+}
+
+/* Pixel game fonts (Google Fonts, loaded in index.html). */
+.font-pixel {
+  font-family: 'Press Start 2P', 'VT323', monospace;
+}
+
+.font-retro {
+  font-family: 'VT323', 'Courier New', monospace;
+}
+
+/* Chibi character idle bob (see ChibiCharacter.tsx). */
+@keyframes chibi-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-chibi-bob {
+  animation: chibi-bob 2.4s ease-in-out infinite;
+}
+
+/* Chibi ground shadow squashes while the character bobs. */
+@keyframes chibi-shadow {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scaleX(0.82);
+    opacity: 0.6;
+  }
+}
+
+.animate-chibi-shadow {
+  animation: chibi-shadow 2.4s ease-in-out infinite;
+}
+
 /* Entrance animations for the section panel (see SectionPanel.tsx). */
 @keyframes fade-in {
   from {
