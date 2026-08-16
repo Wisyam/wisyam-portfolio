@@ -82,32 +82,42 @@ function resolveCircles(position: THREE.Vector3, circles: Circle[]) {
   }
 }
 
-export function Player({ playerRef }: { playerRef: RefObject<THREE.Group | null> }) {
+export function Player({
+  playerRef,
+  disabled = false,
+}: {
+  playerRef: RefObject<THREE.Group | null>
+  /** While true (section panel open) the character does not move or rotate. */
+  disabled?: boolean
+}) {
   const getInput = useKeyboardInput()
   const position = useRef(new THREE.Vector3(0, 0, 0))
   const facing = useRef(0)
 
   useFrame((_, rawDelta) => {
     const delta = Math.min(rawDelta, MAX_DELTA)
-    const { x: inputX, z: inputZ } = getInput()
-    const moving = inputX !== 0 || inputZ !== 0
 
-    if (moving) {
-      position.current.x += inputX * MOVE_SPEED * delta
-      position.current.z += inputZ * MOVE_SPEED * delta
-      position.current.x = clamp(position.current.x, -WORLD_LIMIT, WORLD_LIMIT)
-      position.current.z = clamp(position.current.z, -WORLD_LIMIT, WORLD_LIMIT)
+    if (!disabled) {
+      const { x: inputX, z: inputZ } = getInput()
+      const moving = inputX !== 0 || inputZ !== 0
 
-      resolveAabbs(position.current, buildingColliders)
-      resolveCircles(position.current, treeColliders)
-      resolveCircles(position.current, rockColliders)
+      if (moving) {
+        position.current.x += inputX * MOVE_SPEED * delta
+        position.current.z += inputZ * MOVE_SPEED * delta
+        position.current.x = clamp(position.current.x, -WORLD_LIMIT, WORLD_LIMIT)
+        position.current.z = clamp(position.current.z, -WORLD_LIMIT, WORLD_LIMIT)
 
-      // Face the movement direction (front of the capsule is +z local).
-      const target = Math.atan2(inputX, inputZ)
-      let diff = target - facing.current
-      while (diff > Math.PI) diff -= Math.PI * 2
-      while (diff < -Math.PI) diff += Math.PI * 2
-      facing.current += diff * Math.min(1, delta * ROTATION_DAMP)
+        resolveAabbs(position.current, buildingColliders)
+        resolveCircles(position.current, treeColliders)
+        resolveCircles(position.current, rockColliders)
+
+        // Face the movement direction (front of the capsule is +z local).
+        const target = Math.atan2(inputX, inputZ)
+        let diff = target - facing.current
+        while (diff > Math.PI) diff -= Math.PI * 2
+        while (diff < -Math.PI) diff += Math.PI * 2
+        facing.current += diff * Math.min(1, delta * ROTATION_DAMP)
+      }
     }
 
     const group = playerRef.current
