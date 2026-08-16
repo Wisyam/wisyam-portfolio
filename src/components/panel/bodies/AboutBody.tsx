@@ -1,4 +1,4 @@
-import { ABOUT } from '../../../content/about'
+import { ABOUT } from '../../../content'
 
 /** About panel: name, role, location and short bio. */
 export function AboutBody() {

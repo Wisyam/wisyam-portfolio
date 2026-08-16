@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import type { PortfolioSection, SectionVariant } from '../../content/sections'
+import type { PortfolioSection, SectionVariant } from '../../content'
 import { AboutBody } from './bodies/AboutBody'
 import { ContactBody } from './bodies/ContactBody'
 import { EducationBody } from './bodies/EducationBody'

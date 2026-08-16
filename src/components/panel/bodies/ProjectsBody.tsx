@@ -1,4 +1,4 @@
-import { PROJECTS } from '../../../content/projects'
+import { PROJECTS } from '../../../content'
 
 /** Projects panel: one card per project with roles and stack chips. */
 export function ProjectsBody() {

@@ -1,4 +1,4 @@
-import { EXPERIENCE } from '../../../content/experience'
+import { EXPERIENCE } from '../../../content'
 
 /** Experience panel: vertical timeline of roles. */
 export function ExperienceBody() {

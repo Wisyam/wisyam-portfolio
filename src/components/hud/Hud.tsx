@@ -13,22 +13,9 @@
  * buttons re-enable pointer events.
  */
 
-import { SECTIONS, type SectionVariant } from '../../content/sections'
+import { SECTIONS, type SectionVariant } from '../../content'
 import { useIsTouch } from '../../hooks/useIsTouch'
-
-/**
- * Representative accent color per section, matching the dominant color of
- * each building mesh in SectionBuilding.tsx (kept here — the legend only
- * needs one color per section, the buildings keep their own palettes).
- */
-const SECTION_COLORS: Record<SectionVariant, string> = {
-  about: '#e67e22',
-  skills: '#8e44ad',
-  projects: '#3498db',
-  experience: '#27ae60',
-  education: '#f1c40f',
-  contact: '#e74c3c',
-}
+import { ActivityChecklist } from './ActivityChecklist'
 
 function TitleBlock() {
   return (
@@ -78,7 +65,7 @@ function DesktopLegend({ onOpenSection }: { onOpenSection: (id: SectionVariant) 
             >
               <span
                 className="h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: SECTION_COLORS[section.id] }}
+                style={{ backgroundColor: section.accentColor }}
               />
               {section.label}
             </button>
@@ -107,7 +94,7 @@ function MobileLegend({ onOpenSection }: { onOpenSection: (id: SectionVariant) =
             >
               <span
                 className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: SECTION_COLORS[section.id] }}
+                style={{ backgroundColor: section.accentColor }}
               />
               {section.label}
             </button>
@@ -130,6 +117,7 @@ export function Hud({ onOpenSection }: HudProps) {
       <TitleBlock />
       <DesktopLegend onOpenSection={onOpenSection} />
       <MobileLegend onOpenSection={onOpenSection} />
+      <ActivityChecklist />
       {!isTouch && <ControlsHint />}
     </>
   )
