@@ -12,7 +12,8 @@ import * as THREE from 'three'
 const CAMERA_OFFSET = new THREE.Vector3(0, 22, 17)
 /** Look slightly ahead of the player (toward -z, the "up" direction on screen). */
 const LOOK_AHEAD = -2.5
-const FOLLOW_DAMP = 5
+/** Higher = snappier follow; still trails slightly on sharp turns for game feel. */
+const FOLLOW_DAMP = 6.5
 
 export function CameraRig({ playerRef }: { playerRef: RefObject<THREE.Group | null> }) {
   const lookTarget = useRef(new THREE.Vector3())

@@ -1,6 +1,12 @@
 /**
  * Ground plane (grass) + the two dirt paths crossing at the center.
+ *
+ * On touch devices the ground also acts as the tap-to-move surface: a
+ * pointer-down on the grass sets the player's walk target (buildings are
+ * separate meshes, so tapping a building still opens its panel instead).
  */
+
+import { useIsTouch } from '../../hooks/useIsTouch'
 
 const GROUND_SIZE = 44
 const GROUND_COLOR = '#67b26f'
@@ -10,10 +16,26 @@ const PATH_LENGTH = 16
 const PATH_WIDTH = 1.5
 const PATH_HEIGHT = 0.04
 
-export function Ground() {
+interface GroundProps {
+  /** Called with the world x/z of a ground tap (touch devices only). */
+  onTap?: (x: number, z: number) => void
+}
+
+export function Ground({ onTap }: GroundProps) {
+  const isTouch = useIsTouch()
+
   return (
     <>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
+        onPointerDown={(event) => {
+          if (!isTouch || !onTap) return
+          event.stopPropagation()
+          // event.point is already in world space, on the plane surface.
+          onTap(event.point.x, event.point.z)
+        }}
+      >
         <planeGeometry args={[GROUND_SIZE, GROUND_SIZE]} />
         <meshStandardMaterial color={GROUND_COLOR} />
       </mesh>
