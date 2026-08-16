@@ -6,44 +6,12 @@
  */
 
 import { Instance, Instances } from '@react-three/drei'
-
-interface GroundProp {
-  x: number
-  z: number
-  scale: number
-}
-
-/** Trees scattered between buildings; all within ±18 so the fence at ±20 stays clear. */
-const TREES: GroundProp[] = [
-  { x: -16, z: -14, scale: 1.15 },
-  { x: -15, z: -2, scale: 0.9 },
-  { x: -16, z: 11, scale: 1.25 },
-  { x: -7, z: -15, scale: 1.0 },
-  { x: 4, z: -15, scale: 1.1 },
-  { x: 14, z: -12, scale: 0.85 },
-  { x: 16, z: -3, scale: 1.2 },
-  { x: 17, z: 5, scale: 0.95 },
-  { x: 17, z: 12, scale: 1.3 },
-  { x: -15, z: 16, scale: 1.05 },
-  { x: -3, z: -16, scale: 0.9 },
-  { x: 9, z: 16, scale: 1.0 },
-]
-
-const ROCKS: GroundProp[] = [
-  { x: -12.5, z: -11, scale: 1.0 },
-  { x: 6.5, z: -12.5, scale: 0.7 },
-  { x: 14.5, z: 1, scale: 1.2 },
-  { x: 13, z: 13, scale: 0.8 },
-  { x: -4.5, z: 15.5, scale: 0.9 },
-  { x: 2, z: 6.5, scale: 1.1 },
-  { x: -6, z: 2, scale: 0.75 },
-]
+import { FENCE_HALF, ROCKS, TREES } from '../../content/world-props'
 
 const TREE_GREENS = ['#2e7d32', '#388e3c', '#43a047', '#2f9e44']
 const TREE_TRUNK_COLOR = '#6d4c41'
 const ROCK_COLORS = ['#95a5a6', '#8e9eab', '#a0a8b0']
 
-const FENCE_HALF = 20
 const POST_SPACING = 4
 const FENCE_POST_COLOR = '#a1887f'
 const FENCE_RAIL_COLOR = '#8d6e63'
